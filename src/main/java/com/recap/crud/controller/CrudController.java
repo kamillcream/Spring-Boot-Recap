@@ -3,6 +3,7 @@ package com.recap.crud.controller;
 import com.recap.crud.service.MongoCrudService;
 import com.recap.crud.service.MySQLCrudService;
 import com.recap.crud.service.RedisCrudService;
+import com.recap.domain.dto.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,15 +17,15 @@ public class CrudController {
     private final RedisCrudService redisCrudService;
 
     @PostMapping
-    public Object postUser(@RequestParam String type, @RequestParam String userId, @RequestParam String name, @RequestParam String password){
-        if (type.equals("mysql")){
-            return mysqlCrudService.createUser(name, userId, password);
+    public Object postUser(@RequestBody RegisterRequest request){
+        if (request.type().equals("mysql")){
+            return mysqlCrudService.createUser(request.name(), request.userId(), request.password());
         }
-        else if (type.equals("mongo")) {
-            return mongoCrudService.createUser(name, userId, password);
+        else if (request.type().equals("mongo")) {
+            return mongoCrudService.createUser(request.name(), request.userId(), request.password());
         }
         else{
-            return redisCrudService.createUser(name, userId, password);
+            return redisCrudService.createUser(request.name(), request.userId(), request.password());
         }
     }
     @GetMapping
