@@ -1,5 +1,6 @@
 package com.recap.crud.service;
 
+import com.recap.domain.dto.RegisterResponse;
 import com.recap.domain.entity.MySQLUser;
 import com.recap.domain.repository.MySQLUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,16 +24,15 @@ public class MySQLCrudService{
         return user;
     }
 
-    public MySQLUser readUserById(int id) {
+    public RegisterResponse readUserById(int id) {
         MySQLUser user = findUserOrThrow(id);
-        return user;
+        return RegisterResponse.from(user);
     }
 
-    @Transactional
+
     public MySQLUser updateUserId(int id, String userId) {
         MySQLUser user = findUserOrThrow(id);
         user.setUserId(userId);
-        userRepository.save(user);
         return user;
     }
 
