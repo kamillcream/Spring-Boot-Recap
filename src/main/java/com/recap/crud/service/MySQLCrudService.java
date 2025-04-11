@@ -1,6 +1,6 @@
 package com.recap.crud.service;
 
-import com.recap.domain.dto.RegisterResponse;
+import com.recap.domain.dto.UserResponse;
 import com.recap.domain.entity.MySQLUser;
 import com.recap.domain.repository.MySQLUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,33 +14,33 @@ public class MySQLCrudService{
     private final MySQLUserRepository userRepository;
 
     @Transactional
-    public MySQLUser createUser(String name, String userId, String password) {
+    public UserResponse createUser(String name, String userId, String password) {
         MySQLUser user = MySQLUser.builder()
                 .name(name)
                 .userId(userId)
                 .password(password)
                 .build();
         userRepository.save(user);
-        return user;
+        return UserResponse.from(user);
     }
 
-    public RegisterResponse readUserById(int id) {
+    public UserResponse readUserById(int id) {
         MySQLUser user = findUserOrThrow(id);
-        return RegisterResponse.from(user);
+        return UserResponse.from(user);
     }
 
 
-    public MySQLUser updateUserId(int id, String userId) {
+    public UserResponse updateUserId(int id, String userId) {
         MySQLUser user = findUserOrThrow(id);
         user.setUserId(userId);
-        return user;
+        return UserResponse.from(user);
     }
 
     @Transactional
-    public MySQLUser deleteUserById(int id) {
+    public UserResponse deleteUserById(int id) {
         MySQLUser user = findUserOrThrow(id);
         userRepository.delete(user);
-        return user;
+        return UserResponse.from(user);
     }
 
     public MySQLUser findUserOrThrow(int id){

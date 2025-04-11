@@ -4,12 +4,12 @@ import com.recap.domain.entity.MySQLUser;
 import lombok.Builder;
 
 @Builder
-public record RegisterResponse(
+public record UserResponse(
         String name,
         String userId
 ) {
-    public static RegisterResponse from(MySQLUser user){
-        return RegisterResponse.builder()
+    public static UserResponse from(MySQLUser user){
+        return UserResponse.builder()
                 .name(user.getName())
                 .userId(user.getUserId())
                 .build();
