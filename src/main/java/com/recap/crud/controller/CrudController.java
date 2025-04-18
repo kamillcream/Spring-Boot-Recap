@@ -2,8 +2,8 @@ package com.recap.crud.controller;
 
 import com.recap.crud.service.MySQLCrudService;
 import com.recap.crud.service.RedisCrudService;
-import com.recap.domain.dto.RegisterRequest;
-import com.recap.domain.dto.UserResponse;
+import com.recap.global.dto.RegisterRequest;
+import com.recap.global.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
