@@ -1,7 +1,7 @@
 package com.recap.crud.service;
 
-import com.recap.domain.entity.RedisUser;
-import com.recap.domain.repository.RedisUserRepository;
+import com.recap.global.entity.RedisUser;
+import com.recap.global.repository.RedisUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

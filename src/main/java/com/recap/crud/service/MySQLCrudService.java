@@ -1,8 +1,8 @@
 package com.recap.crud.service;
 
-import com.recap.domain.dto.UserResponse;
-import com.recap.domain.entity.MySQLUser;
-import com.recap.domain.repository.MySQLUserRepository;
+import com.recap.global.dto.UserResponse;
+import com.recap.global.entity.User;
+import com.recap.global.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,11 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MySQLCrudService{
 
-    private final MySQLUserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public UserResponse createUser(String name, String userId, String password) {
-        MySQLUser user = MySQLUser.builder()
+        User user = User.builder()
                 .name(name)
                 .userId(userId)
                 .password(password)
@@ -25,25 +25,25 @@ public class MySQLCrudService{
     }
 
     public UserResponse readUserById(int id) {
-        MySQLUser user = findUserOrThrow(id);
+        User user = findUserOrThrow(id);
         return UserResponse.from(user);
     }
 
 
     public UserResponse updateUserId(int id, String userId) {
-        MySQLUser user = findUserOrThrow(id);
+        User user = findUserOrThrow(id);
         user.setUserId(userId);
         return UserResponse.from(user);
     }
 
     @Transactional
     public UserResponse deleteUserById(int id) {
-        MySQLUser user = findUserOrThrow(id);
+        User user = findUserOrThrow(id);
         userRepository.delete(user);
         return UserResponse.from(user);
     }
 
-    public MySQLUser findUserOrThrow(int id){
+    public User findUserOrThrow(int id){
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
     }
