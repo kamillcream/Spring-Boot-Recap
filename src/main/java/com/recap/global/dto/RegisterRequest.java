@@ -1,4 +1,4 @@
-package com.recap.domain.dto;
+package com.recap.global.dto;
 
 import lombok.Builder;
 

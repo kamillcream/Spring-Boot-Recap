@@ -1,4 +1,4 @@
-package com.recap.domain.entity;
+package com.recap.global.entity;
 
 import jakarta.persistence.Id;
 import lombok.*;

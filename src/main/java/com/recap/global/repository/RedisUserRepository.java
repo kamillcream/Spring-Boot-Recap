@@ -1,6 +1,6 @@
-package com.recap.domain.repository;
+package com.recap.global.repository;
 
-import com.recap.domain.entity.RedisUser;
+import com.recap.global.entity.RedisUser;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
