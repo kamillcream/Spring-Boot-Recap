@@ -1,10 +1,9 @@
 package com.recap.global.security;
 
-import com.recap.global.entity.User;
-import com.recap.global.repository.UserRepository;
+import com.recap.domain.user.entity.User;
+import com.recap.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,11 +15,11 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService{
 
     private final UserRepository userRepository;
-    private final MongoTemplate mongoTemplate;
+
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByUserId(email);
+        User user = userRepository.findById(1L).orElseThrow();
 
         if (user == null) {
             throw new UsernameNotFoundException("User not found with email: " + email);

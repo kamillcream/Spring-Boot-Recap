@@ -1,7 +1,7 @@
 package com.recap.global.jwt;
 
-import com.recap.global.entity.User;
-import com.recap.global.repository.UserRepository;
+import com.recap.domain.user.entity.User;
+import com.recap.domain.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -103,18 +103,18 @@ public class JwtUtil {
         }
 
         // DB에서 googleId 기반으로 사용자 찾기
-        Optional<User> userOptional = Optional.ofNullable(userRepository.findByUserId(email));
+        Optional<Optional<User>> userOptional = Optional.ofNullable(userRepository.findById(1L));
         if (userOptional.isEmpty()) {
             throw new UsernameNotFoundException("User not found with googleId: " + email);
         }
 
 
-        User user = userOptional.get();
+        Optional<User> user = userOptional.get();
         List<GrantedAuthority> authorities = new ArrayList<>();
 
         // Spring Security User 객체 생성 (googleId를 username으로 사용)
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getUserId(), "", authorities
+                user.get().getUserId(), "", authorities
         );
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);

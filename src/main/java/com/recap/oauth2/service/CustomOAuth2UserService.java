@@ -1,7 +1,7 @@
 package com.recap.oauth2.service;
 
-import com.recap.global.entity.User;
-import com.recap.global.repository.UserRepository;
+import com.recap.domain.user.entity.User;
+import com.recap.domain.user.repository.UserRepository;
 import com.recap.oauth2.exception.OAuth2AuthenticationProcessingException;
 import com.recap.oauth2.user.OAuth2UserInfo;
 import com.recap.oauth2.user.OAuth2UserInfoFactory;
@@ -13,6 +13,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -57,13 +59,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 provider");
         }
 
-        User existingUser = userRepository.findByUserId(oAuth2UserInfo.getEmail());
+        Optional<User> existingUser = userRepository.findById(1L);
 
-        if (existingUser == null){
+        if (existingUser.isEmpty()){
             User user = User.builder()
                     .name(oAuth2UserInfo.getName())
                     .userId(oAuth2UserInfo.getEmail())
-                    .social(registrationId)
                     .build();
             userRepository.save(user);
         }

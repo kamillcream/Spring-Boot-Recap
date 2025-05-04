@@ -2,9 +2,9 @@ package com.recap.global.jwt;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.recap.domain.user.entity.User;
+import com.recap.domain.user.repository.UserRepository;
 import com.recap.global.dto.LoginRequest;
-import com.recap.global.entity.User;
-import com.recap.global.repository.UserRepository;
 import com.recap.global.security.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,6 +21,7 @@ import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
@@ -45,12 +46,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
             LoginRequest loginRequest = new ObjectMapper().readValue(messageBody, LoginRequest.class);
 
-            User user = userRepository.findByUserId(loginRequest.email());
+            Optional<User> user = userRepository.findById(1L);
             log.info("");
-
-            if (user.getSocial() != null){
-                throw new RuntimeException(user.getSocial() + "계정으로 가입된 회원입니다.");
-            }
+//
+//            if (user.get().getSocial() != null){
+//                throw new RuntimeException(user.get().getSocial() + "계정으로 가입된 회원입니다.");
+//            }
 
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password(), null);
