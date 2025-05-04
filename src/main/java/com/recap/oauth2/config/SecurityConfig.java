@@ -1,10 +1,10 @@
 package com.recap.oauth2.config;
 
+import com.recap.domain.user.repository.UserRepository;
 import com.recap.global.jwt.CookieUtil;
 import com.recap.global.jwt.JwtFilter;
 import com.recap.global.jwt.JwtUtil;
 import com.recap.global.jwt.LoginFilter;
-import com.recap.global.repository.UserRepository;
 import com.recap.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.recap.oauth2.handler.OAuth2AuthenticationFailureHandler;
 import com.recap.oauth2.handler.OAuth2AuthenticationSuccessHandler;
@@ -83,8 +83,8 @@ public class SecurityConfig {
                         })
                 )
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/oauth2/**","/register/*","/login", "/swagger-ui/**",    // Swagger UI 관련 경로
-                                "/v3/api-docs/**","/csrf-token", "/project/**", "/doc/ws", "/doc/ws/**", "/document/**", "/editing", "/notification/**").permitAll()
+                        .requestMatchers("/oauth2/**","/login", "/swagger-ui/**",    // Swagger UI 관련 경로
+                                "/v3/api-docs/**","/csrf-token", "/posts/**", "/posts").permitAll()
                         .requestMatchers("/task/**").hasAnyRole("MEMBER", "MANAGER", "VIEWER")
                         .anyRequest().authenticated()
                 )
