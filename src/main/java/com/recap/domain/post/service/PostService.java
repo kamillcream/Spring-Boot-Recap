@@ -1,10 +1,20 @@
 package com.recap.domain.post.service;
 
+import com.recap.domain.post.dto.PostRequest;
+import com.recap.domain.post.entity.Post;
+import com.recap.domain.post.repository.PostRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
-    // TODO: 게시글 작성
+
+    private final PostRepository postRepository;
+
+    public Post createPost(PostRequest postRequest){
+        return postRepository.save(postRequest.to());
+    }
     // TODO: 게시글 삭제
     // TODO: 게시글 수정
     // TODO: 게시글 신고
