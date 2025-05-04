@@ -1,7 +1,6 @@
 package com.recap.domain.post.entity;
 
 import com.recap.global.entity.BaseEntity;
-import com.recap.global.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,11 +16,11 @@ public class Post extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id")
+//    private User user;
 
-    @Column(nullable = false, length = 80)
+    @Column(nullable = false, length = 90)
     private String title;
 
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -34,15 +33,19 @@ public class Post extends BaseEntity {
     private LocalDateTime modifiedDt;
 
     @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    private boolean isDeleted;
 
-    private Integer like;
+    @Column(name = "like_num")
+    private Integer likeNum;
 
     private Integer scrap;
 
     @PrePersist
     public void preCreate() {
         this.createdDt = LocalDateTime.now();
+        this.likeNum = 0;
+        this.scrap = 0;
+        this.isDeleted = false;
     }
 
     @PreUpdate
