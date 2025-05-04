@@ -37,14 +37,19 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final OAuth2AuthorizedClientService authorizedClientService;
 
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
+
+        String code = request.getParameter("code");
+        System.out.println("Authorization Code: " + code);
 
 
         String targetUrl = determineTargetUrl(request, response, authentication);
 
         OAuth2UserPrincipal principal = getOAuth2UserPrincipal(authentication);
+
 
         if (principal != null) {
             String accessToken = jwtUtil.createAccess(principal.getUserInfo().getEmail());
@@ -53,6 +58,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient(
                     oauthToken.getAuthorizedClientRegistrationId(), oauthToken.getName());
 
+            log.info("OAuth2AuthorizedToken: {}", client.getAccessToken().getTokenValue());
 
             String googleAccessToken = client.getAccessToken().getTokenValue();
             CookieUtil.addCookie(response, "access_token", accessToken, 3600);
@@ -83,6 +89,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String mode = CookieUtil.getCookie(request, MODE_PARAM_COOKIE_NAME)
                 .map(Cookie::getValue)
                 .orElse("");
+
+        log.info("mode: {}", mode);
 
         OAuth2UserPrincipal principal = getOAuth2UserPrincipal(authentication);
         if (principal == null) {

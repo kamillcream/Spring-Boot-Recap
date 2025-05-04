@@ -24,12 +24,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationProcessingException {
-        log.info("🔍 OAuth2UserService: 사용자 정보 요청 시작");
         this.oAuth2UserRequest = oAuth2UserRequest;
 
-        OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
-        log.info("🔍 OAuth2UserService: 사용자 정보 로드 완료 -> {}", oAuth2User.getAttributes());
+        log.info("loadUser is called");
 
+        OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
 
         try {
             return processOAuth2User(oAuth2UserRequest, oAuth2User);
@@ -40,8 +39,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
 
+        log.info("processOAuth2User is called");
+
         String registrationId = userRequest.getClientRegistration()
                 .getRegistrationId();
+
+        log.info("registrationId : {}", registrationId);
 
         String accessToken = userRequest.getAccessToken().getTokenValue();
 
@@ -50,16 +53,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 accessToken,
                 oAuth2User.getAttributes());
 
-        log.info("userInfoAtt: {}", oAuth2UserInfo.getAttributes());
-        log.info("userInfo: {}", oAuth2UserInfo.getEmail());
-        log.info("userProfile: {}", oAuth2UserInfo.getProfileImage());
-
         if (!StringUtils.hasText(oAuth2UserInfo.getEmail())) {
             throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 provider");
         }
 
         User existingUser = userRepository.findByUserId(oAuth2UserInfo.getEmail());
-        log.info("user", existingUser);
 
         if (existingUser == null){
             User user = User.builder()
