@@ -89,3 +89,7 @@ jwt:
   secret: "jfsgkhdsjkweoiruwqejkrfbhnsadkjlfghbwerqewrsdfgdsfagbdf"
   access-expiration: 3600
   refresh-expiration: 8640
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.recap.domain.university.entity
