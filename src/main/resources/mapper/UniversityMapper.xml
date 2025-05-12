@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.recap.domain.university.mapper.UniversityMapper">
+
+    <select id="findUniversityAndConvert" parameterType="com.recap.domain.university.dto.response.UniversityInfoResponse">
+        SELECT code, name FROM university
+    </select>
+
+</mapper>
