@@ -1,5 +1,6 @@
 package com.recap.domain.post.entity;
 
+import com.recap.domain.university.entity.University;
 import com.recap.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,6 +22,10 @@ public class Post extends BaseEntity {
 //    @JoinColumn(name = "user_id")
 //    private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "univ_id")
+    private University university;
+
     @Column(nullable = false, length = 90)
     private String title;
 
@@ -37,14 +42,14 @@ public class Post extends BaseEntity {
     private boolean isDeleted;
 
     @Column(name = "like_num")
-    private Integer likeNum;
+    private Integer like;
 
     private Integer scrap;
 
     @PrePersist
     public void preCreate() {
         this.createdDt = LocalDateTime.now();
-        this.likeNum = 0;
+        this.like = 0;
         this.scrap = 0;
         this.isDeleted = false;
     }
@@ -53,5 +58,26 @@ public class Post extends BaseEntity {
     public void preUpdate() {
         this.modifiedDt = LocalDateTime.now();
     }
+
+    public void increaseScrap(){
+        this.scrap++;
+    }
+
+    public void decreaseScrap(){
+        if(this.scrap > 0){
+            this.scrap--;
+        }
+    }
+
+    public void increaseLike(){
+        this.like++;
+    }
+
+    public void decreaseLike(){
+        if(this.like > 0){
+            this.like--;
+        }
+    }
+
 
 }

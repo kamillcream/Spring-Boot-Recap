@@ -19,13 +19,13 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping
-    public ResponseEntity<Post> postNewPost(@Valid @RequestBody PostRequest postRequest){
+    @PostMapping("/{univCode}")
+    public ResponseEntity<Post> postNewPost(@PathVariable String univCode, @Valid @RequestBody PostRequest postRequest){
         return ResponseEntity.ok(postService.createPost(postRequest));
     }
 
-    @GetMapping
-    public ResponseEntity<List<Post>> getPosts(){
+    @GetMapping("/{univCode}")
+    public ResponseEntity<List<Post>> getPosts(@PathVariable String univCode){
         return ResponseEntity.ok(postService.fetchPosts());
     }
 
@@ -39,7 +39,23 @@ public class PostController {
         return ResponseEntity.ok(postService.updatePost(postId, postRequest));
     }
     // TODO: 게시글 신고
-    // TODO: 게시글 좋아요
-    // TODO: 게시글 스크랩
+//    @PostMapping("/{postId}/report")
+//    public ResponseEntity<Report> createReport(@PathVariable long postId){
+//        return ResponseEntity.ok(postService.reportPost(postId));
+//    }
+
+    @PatchMapping("/{postId}/like")
+    public ResponseEntity<Post> patchLike(@PathVariable long postId,
+                                          @RequestParam boolean isAlreadyLike){
+        return ResponseEntity.ok(postService.updateLike(postId, isAlreadyLike));
+    }
+
+    @PatchMapping("/{postId}/scrap")
+    public ResponseEntity<Post> patchScrap(@PathVariable long postId,
+                                           @RequestParam boolean isAlreadyScrap){
+        return ResponseEntity.ok(postService.updateScrap(postId, isAlreadyScrap));
+    }
+
+
 
 }

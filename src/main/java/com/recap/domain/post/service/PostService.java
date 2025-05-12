@@ -39,7 +39,31 @@ public class PostService {
         }
         return post;
     }
-    // TODO: 게시글 신고
-    // TODO: 게시글 좋아요
-    // TODO: 게시글 스크랩
+//    // TODO: 게시글 신고
+//    public ResponseEntity<String> repostPost(long postId){
+//        Post post = postRepository.findById(postId).orElseThrow();
+//
+//    })
+
+    @Transactional
+    public Post updateLike(long postId, boolean isAlreadyLike) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        if (isAlreadyLike) {
+            post.decreaseLike();
+        } else {
+            post.increaseLike();
+        }
+        return post;
+    }
+
+    @Transactional
+    public Post updateScrap(long postId, boolean isAlreadyScrap) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        if (isAlreadyScrap) {
+            post.decreaseScrap();
+        } else {
+            post.decreaseLike();
+        }
+        return post;
+    }
 }
