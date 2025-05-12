@@ -1,5 +1,6 @@
 package com.recap.domain.user.entity;
 
+import com.recap.domain.university.entity.University;
 import com.recap.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,11 +19,13 @@ public class User extends BaseEntity {
     @Column(length = 20, nullable = false)
     private String userId;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "univ_id")
+    private University university;
+
     @Column(name = "password", nullable = false) // length default = 255, 별도 명시 x
     private String password;
 
-    @Column(length = 25, nullable = false)
-    private String university;
 
     @Column(length = 20, nullable = false)
     private String name;
