@@ -55,7 +55,4 @@ public class PostController {
                                            @RequestParam boolean isAlreadyScrap){
         return ResponseEntity.ok(postService.updateScrap(postId, isAlreadyScrap));
     }
-
-
-
 }
