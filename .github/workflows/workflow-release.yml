@@ -67,8 +67,6 @@ jobs:
           host: ${{ secrets.DEPLOY_SERVER_HOST }}
           username: ${{ secrets.DEPLOY_SERVER_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: ".env.production"
-          target: "~/"
 
       - name: 서버에 SSH 접속하여 Docker 실행
         uses: appleboy/ssh-action@v0.1.5
@@ -86,11 +84,6 @@ jobs:
             sudo docker stop $IMAGE_NAME || true
             sudo docker rm $IMAGE_NAME || true
             
-            sudo docker stop zookeeper
-            sudo docker rm zookeeper
-            
-            sudo docker stop kafka
-            sudo docker rm kafka
             
             
             sudo docker login -u _json_key --password-stdin https://us-central1-docker.pkg.dev
