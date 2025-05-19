@@ -80,7 +80,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/oauth2/**","/login", "/swagger-ui/**",    // Swagger UI 관련 경로
-                                "/v3/api-docs/**","/csrf-token", "/posts/**", "/posts", "/universities", "/users").permitAll()
+                                "/v3/api-docs/**","/csrf-token", "/posts/**", "/posts", "/universities", "/users", "/tests").permitAll()
                         .requestMatchers("/task/**").hasAnyRole("MEMBER", "MANAGER", "VIEWER")
                         .anyRequest().authenticated()
                 );
