@@ -6,6 +6,7 @@ import com.recap.domain.user.dto.request.UserRegisterRequest;
 import com.recap.domain.user.entity.User;
 import com.recap.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,11 +14,12 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final UniversityService universityService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public User register(UserRegisterRequest userRegisterRequest){
         User user = User.builder()
                 .userId(userRegisterRequest.userId())
-                .password(userRegisterRequest.password())
+                .password(passwordEncoder.encode(userRegisterRequest.password()))
                 .name(userRegisterRequest.name())
                 .nickname(userRegisterRequest.nickname())
                 .university(universityService.findUniversityByCode(userRegisterRequest.univCode()))

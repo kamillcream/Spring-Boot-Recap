@@ -3,10 +3,12 @@ package com.recap.domain.post.controller;
 import com.recap.domain.post.dto.PostRequest;
 import com.recap.domain.post.entity.Post;
 import com.recap.domain.post.service.PostService;
+import com.recap.global.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,7 +32,9 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}")
-    public void deletePost(@PathVariable long postId){
+    public void deletePost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable long postId){
         postService.deletePost(postId);
     }
 

@@ -54,7 +54,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 //            }
 
             UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password(), null);
+                    new UsernamePasswordAuthenticationToken(loginRequest.userId(), loginRequest.password(), null);
 
             return getAuthenticationManager().authenticate(authToken);
         } catch (IOException e) {
@@ -67,17 +67,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                                             FilterChain chain, Authentication authentication)
             throws IOException, ServletException {
         log.info("Authentication successful...");
-
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String email = userDetails.getEmail();
         try {
             response.addHeader("access", jwtUtil.createAccess(email));
-            response.addHeader("refresh", jwtUtil.createRefresh(email));
         } catch (Exception e) {
             log.error("Error generating JWT: ", e);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        response.addCookie(cookieUtil.createCookie("refresh", jwtUtil.createRefresh(email)));
+        response.addCookie(CookieUtil.createCookie("refresh", jwtUtil.createRefresh(email)));
         response.setStatus(HttpStatus.OK.value());
     }
 

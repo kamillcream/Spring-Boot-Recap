@@ -30,7 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 
         if (accessToken == null) {
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response); // 다음 필터로 넘어감, 즉 토큰이 없으면 인증 안하고 로그인으로 가게 됨.
             return;
         }
 
@@ -57,7 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
+        SecurityContextHolder.getContext().setAuthentication(authToken); // @AuthenticationPrincipal 동작 가능케 함.
 
         filterChain.doFilter(request, response);
     }
