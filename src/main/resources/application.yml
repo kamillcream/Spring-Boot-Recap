@@ -1,19 +1,4 @@
 spring:
-  autoconfigure:
-  cache:
-    type: redis
-
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: test
-
-    redis:
-      host: localhost
-      port: 6379
-      timeout: 6000ms
-
   datasource:
     url: jdbc:mysql://34.60.104.129:3306/test
     username: root
