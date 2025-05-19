@@ -6,9 +6,6 @@ import com.recap.global.jwt.JwtFilter;
 import com.recap.global.jwt.JwtUtil;
 import com.recap.global.jwt.LoginFilter;
 import com.recap.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
-import com.recap.oauth2.handler.OAuth2AuthenticationFailureHandler;
-import com.recap.oauth2.handler.OAuth2AuthenticationSuccessHandler;
-import com.recap.oauth2.service.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,9 +39,6 @@ import java.util.List;
 @Slf4j
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -89,14 +83,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**","/csrf-token", "/posts/**", "/posts", "/universities", "/users").permitAll()
                         .requestMatchers("/task/**").hasAnyRole("MEMBER", "MANAGER", "VIEWER")
                         .anyRequest().authenticated()
-                )
-                .oauth2Login(configure ->
-                        configure.authorizationEndpoint(config -> config.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
-                                .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
-                                .successHandler(oAuth2AuthenticationSuccessHandler)
-                                .failureHandler(oAuth2AuthenticationFailureHandler)
                 );
-
 //        http
 //                .addFilterAt(new JwtFilter(jwtUtil, userDetailsService), LoginFilter.class)
 //                .addFilterBefore(
@@ -109,10 +96,6 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtFilter(jwtUtil, userDetailsService), LoginFilter.class) // 로그인 필터 전에 jwt 토큰 확인, 없으면 통과
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, cookieUtil, userRepository), UsernamePasswordAuthenticationFilter.class);
 
-        // 필터 알맞는 위치 일단 주석으로 추가
-
-
-        //세션 관리 상태 없음 으로 설정, 서버가 클라이언트의 세션 상태를 유지하지 않음
         http.sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
