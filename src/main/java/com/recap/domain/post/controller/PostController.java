@@ -22,7 +22,8 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/{univCode}")
-    public ResponseEntity<Post> postNewPost(@PathVariable String univCode, @Valid @RequestBody PostRequest postRequest){
+    public ResponseEntity<Post> postNewPost(@PathVariable String univCode,
+                                            @Valid @RequestBody PostRequest postRequest){
         return ResponseEntity.ok(postService.createPost(postRequest));
     }
 
