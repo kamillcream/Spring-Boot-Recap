@@ -56,14 +56,22 @@ jobs:
 
         - name: Canary 트래픽 10%로 분할
           run: |
-            REVISION_ID=$(gcloud run services describe $SERVICE_NAME --region $REGION --format='value(status.latestReadyRevisionName)')
+            EXISTING_REVISION=$(gcloud run services describe $SERVICE_NAME \
+            --region $REGION \
+            --format="value(status.traffic[0].revisionName)")
+            
+            NEW_REVISION=$(gcloud run services describe $SERVICE_NAME \
+            --region $REGION \
+            --format="value(status.latestReadyRevisionName)")
+            
             gcloud run services update-traffic $SERVICE_NAME \
-              --region $REGION \
-              --to-revisions $REVISION_ID=10,latest=90
+            --region $REGION \
+            --to-revisions=$NEW_REVISION=10,$EXISTING_REVISION=90
 
         - name: Cloud Run 권한 확인 및 부여 (allUsers 공개 접근)
           run: |
             gcloud run services add-iam-policy-binding $SERVICE_NAME \
               --region $REGION \
+              --to-revisions $NEW_REVISION=10,$EXISTING_REVISION=90
               --member="allUsers" \
               --role="roles/run.invoker" || true
