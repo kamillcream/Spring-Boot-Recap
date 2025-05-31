@@ -55,3 +55,10 @@ jobs:
           image: us-central1-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/docker/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           region: us-central1
           allow-unauthenticated: true
+
+      - name: Cloud Run에 공개 접근 권한 부여 (강제)
+        run: |
+            gcloud run services add-iam-policy-binding goormthon \
+              --region=us-central1 \
+              --member="allUsers" \
+              --role="roles/run.invoker"
