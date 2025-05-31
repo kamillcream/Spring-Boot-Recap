@@ -81,6 +81,16 @@ jobs:
           run: |
             gcloud run services add-iam-policy-binding $SERVICE_NAME \
               --region $REGION \
-              --to-revisions $NEW_REVISION=10,$EXISTING_REVISION=90
               --member="allUsers" \
               --role="roles/run.invoker" || true
+
+        - name: 헬스 체크 수행
+          run: |
+            STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://goormthon-518753090568.us-central1.run.app/health)
+            if [ "$STATUS_CODE" -ne 200 ]; then
+              echo "Health check failed. Rolling back..."
+              gcloud run services update-traffic $SERVICE_NAME \
+                --region $REGION \
+                --to-revisions=$EXISTING_REVISION=100
+              exit 1
+            fi
