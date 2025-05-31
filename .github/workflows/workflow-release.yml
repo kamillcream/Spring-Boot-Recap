@@ -2,95 +2,94 @@ name: CI / Canary CD
 
 on:
   push:
-      branches: [jinyoung]
+    branches: [jinyoung]
 
 jobs:
   ci-cd:
-      runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-      env:
-        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-        IMAGE_NAME: goormthon
-        IMAGE_TAG: ${{ github.sha }}
-        REGION: us-central1
-        SERVICE_NAME: goormthon
+    env:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      IMAGE_NAME: goormthon
+      IMAGE_TAG: ${{ github.sha }}
+      REGION: us-central1
+      SERVICE_NAME: goormthon
 
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-        - name: Set up JDK
-          uses: actions/setup-java@v4
-          with:
-            java-version: 21
-            distribution: 'adopt'
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'adopt'
 
-        - name: GCP 인증
-          uses: google-github-actions/auth@v2
-          with:
-            credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: GCP 인증
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-        - name: Docker 인증 구성
-          run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+      - name: Docker 인증 구성
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
-        - name: Gradle 권한 설정
-          run: chmod +x gradlew
+      - name: Gradle 권한 설정
+        run: chmod +x gradlew
 
-        - name: Build with Gradle (Test 제외)
-          run: ./gradlew build --exclude-task test
+      - name: Build with Gradle (Test 제외)
+        run: ./gradlew build --exclude-task test
 
-        - name: Docker 이미지 빌드 및 푸시
-          run: |
-            docker build \
-              -t us-central1-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/docker/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
-            docker push us-central1-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/docker/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+      - name: Docker 이미지 빌드 및 푸시
+        run: |
+          docker build -t us-central1-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/docker/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+          docker push us-central1-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/docker/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
-        - name: Cloud Run 새 리비전 배포 (canary)
-          run: |
-            gcloud run deploy $SERVICE_NAME \
-              --image us-central1-docker.pkg.dev/$GCP_PROJECT_ID/docker/$IMAGE_NAME:$IMAGE_TAG \
-              --region $REGION \
-              --platform managed \
-              --no-traffic \
-              --allow-unauthenticated
+      - name: Cloud Run 새 리비전 배포 (canary)
+        run: |
+          gcloud run deploy $SERVICE_NAME \
+            --image us-central1-docker.pkg.dev/$GCP_PROJECT_ID/docker/$IMAGE_NAME:$IMAGE_TAG \
+            --region $REGION \
+            --platform managed \
+            --no-traffic \
+            --allow-unauthenticated
 
-        - name: Canary 트래픽 분할 (무중단 배포 포함)
-          run: |
-            set -e
-            
-            EXISTING_REVISION=$(gcloud run services describe $SERVICE_NAME \
+      - name: 기존 및 신규 리비전 정보 저장
+        run: |
+          EXISTING_REVISION=$(gcloud run services describe $SERVICE_NAME \
             --region $REGION \
             --format="value(status.traffic[0].revisionName)")
-            
-            NEW_REVISION=$(gcloud run services describe $SERVICE_NAME \
+
+          NEW_REVISION=$(gcloud run services describe $SERVICE_NAME \
             --region $REGION \
             --format="value(status.latestReadyRevisionName)")
-            
-            echo "기존 리비전: $EXISTING_REVISION"
-            echo "신규 리비전: $NEW_REVISION"
-            
-            if [[ "$EXISTING_REVISION" == "$NEW_REVISION" ]]; then
+
+          echo "EXISTING_REVISION=$EXISTING_REVISION" >> $GITHUB_ENV
+          echo "NEW_REVISION=$NEW_REVISION" >> $GITHUB_ENV
+
+      - name: Canary 트래픽 분할 (무중단 배포 포함)
+        run: |
+          if [[ "$EXISTING_REVISION" == "$NEW_REVISION" ]]; then
             echo "새 리비전이 기존 리비전과 같아서 트래픽 분할을 생략합니다."
-            else
+          else
             gcloud run services update-traffic $SERVICE_NAME \
-             --region $REGION \
-             --to-revisions=${NEW_REVISION}=10,${EXISTING_REVISION}=90
-            fi
-
-        - name: Cloud Run 권한 확인 및 부여 (allUsers 공개 접근)
-          run: |
-            gcloud run services add-iam-policy-binding $SERVICE_NAME \
               --region $REGION \
-              --member="allUsers" \
-              --role="roles/run.invoker" || true
+              --to-revisions=${NEW_REVISION}=10,${EXISTING_REVISION}=90
+          fi
 
-        - name: 헬스 체크 수행
-          run: |
-            STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://goormthon-518753090568.us-central1.run.app/health)
-            if [ "$STATUS_CODE" -ne 200 ]; then
-              echo "Health check failed. Rolling back..."
-              gcloud run services update-traffic $SERVICE_NAME \
-                --region $REGION \
-                --to-revisions=$EXISTING_REVISION=100
-              exit 1
-            fi
+      - name: Cloud Run 권한 확인 및 부여 (allUsers 공개 접근)
+        run: |
+          gcloud run services add-iam-policy-binding $SERVICE_NAME \
+            --region $REGION \
+            --member="allUsers" \
+            --role="roles/run.invoker" || true
+
+      - name: 헬스 체크 수행 및 롤백
+        run: |
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://goormthon-518753090568.us-central1.run.app/health)
+          if [ "$STATUS_CODE" -ne 200 ]; then
+            echo "Health check failed. Rolling back..."
+            gcloud run services update-traffic $SERVICE_NAME \
+              --region $REGION \
+              --to-revisions=$EXISTING_REVISION=100
+            exit 1
+          fi
