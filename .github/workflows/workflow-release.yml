@@ -54,8 +54,10 @@ jobs:
               --no-traffic \
               --allow-unauthenticated
 
-        - name: Canary 트래픽 10%로 분할
+        - name: Canary 트래픽 분할 (무중단 배포 포함)
           run: |
+            set -e
+            
             EXISTING_REVISION=$(gcloud run services describe $SERVICE_NAME \
             --region $REGION \
             --format="value(status.traffic[0].revisionName)")
@@ -64,9 +66,16 @@ jobs:
             --region $REGION \
             --format="value(status.latestReadyRevisionName)")
             
+            echo "기존 리비전: $EXISTING_REVISION"
+            echo "신규 리비전: $NEW_REVISION"
+            
+            if [[ "$EXISTING_REVISION" == "$NEW_REVISION" ]]; then
+            echo "새 리비전이 기존 리비전과 같아서 트래픽 분할을 생략합니다."
+            else
             gcloud run services update-traffic $SERVICE_NAME \
-            --region $REGION \
-            --to-revisions=$NEW_REVISION=10,$EXISTING_REVISION=90
+             --region $REGION \
+             --to-revisions=${NEW_REVISION}=10,${EXISTING_REVISION}=90
+            fi
 
         - name: Cloud Run 권한 확인 및 부여 (allUsers 공개 접근)
           run: |
