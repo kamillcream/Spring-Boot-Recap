@@ -1,64 +1,69 @@
-name: CI / CD
+name: CI / Canary CD
 
 on:
   push:
-    branches: [jinyoung]
+      branches: [jinyoung]
 
 jobs:
-  CI-CD:
-    runs-on: ubuntu-latest
+  ci-cd:
+      runs-on: ubuntu-latest
 
-    env:
-      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      IMAGE_NAME: goormthon
-      IMAGE_TAG: ${{ github.sha }}
-      REGION: asia-northeast3  # 원하는 GCP 리전
-      SERVICE_NAME: goormthon-service # Cloud Run 서비스 이름
+      env:
+        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        IMAGE_NAME: goormthon
+        IMAGE_TAG: ${{ github.sha }}
+        REGION: asia-northeast3
+        SERVICE_NAME: goormthon-service
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: 'adopt'
+        - name: Set up JDK
+          uses: actions/setup-java@v4
+          with:
+            java-version: 21
+            distribution: 'adopt'
 
-      - name: Google Cloud SDK 인증
-        uses: "google-github-actions/auth@v2"
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+        - name: GCP 인증
+          uses: google-github-actions/auth@v2
+          with:
+            credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Docker 인증 구성
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+        - name: Docker 인증 구성
+          run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        - name: Gradle 권한 설정
+          run: chmod +x gradlew
 
-      - name: Build with Gradle (Test 제외)
-        run: ./gradlew build --exclude-task test
+        - name: Build with Gradle (Test 제외)
+          run: ./gradlew build --exclude-task test
 
-      - name: Verify JAR file
-        run: ls -la build/libs/
+        - name: Docker 이미지 빌드 및 푸시
+          run: |
+            docker build \
+              -t us-central1-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/docker/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+            docker push us-central1-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/docker/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
-      - name: Docker 이미지 빌드 및 푸시
-        run: |
-          docker build \
-            -t us-central1-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/docker/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
-          docker push us-central1-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/docker/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        - name: Cloud Run 새 리비전 배포 (canary)
+          run: |
+            gcloud run deploy $SERVICE_NAME \
+              --image us-central1-docker.pkg.dev/$GCP_PROJECT_ID/docker/$IMAGE_NAME:$IMAGE_TAG \
+              --region $REGION \
+              --platform managed \
+              --no-traffic \
+              --allow-unauthenticated
 
-      - name: Cloud Run에 배포
-        uses: google-github-actions/deploy-cloudrun@v1
-        with:
-          service: goormthon
-          image: us-central1-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/docker/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          region: us-central1
-          allow-unauthenticated: true
+        - name: Canary 트래픽 10%로 분할
+          run: |
+            REVISION_ID=$(gcloud run services describe $SERVICE_NAME --region $REGION --format='value(status.latestReadyRevisionName)')
+            gcloud run services update-traffic $SERVICE_NAME \
+              --region $REGION \
+              --to-revisions $REVISION_ID=10,latest=90
 
-      - name: Cloud Run에 공개 접근 권한 부여 (강제)
-        run: |
-            gcloud run services add-iam-policy-binding goormthon \
-              --region=us-central1 \
+        - name: Cloud Run 권한 확인 및 부여 (allUsers 공개 접근)
+          run: |
+            gcloud run services add-iam-policy-binding $SERVICE_NAME \
+              --region $REGION \
               --member="allUsers" \
-              --role="roles/run.invoker"
+              --role="roles/run.invoker" || true
