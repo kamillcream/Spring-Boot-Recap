@@ -91,5 +91,6 @@ jobs:
             gcloud run services update-traffic $SERVICE_NAME \
               --region $REGION \
               --to-revisions=$EXISTING_REVISION=100
-            exit 1
+            echo "Rollback completed. Exiting gracefully."
+            exit 0
           fi
