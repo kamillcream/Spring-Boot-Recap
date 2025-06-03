@@ -3,6 +3,8 @@ package com.recap.domain.post.service;
 import com.recap.domain.post.dto.PostRequest;
 import com.recap.domain.post.entity.Post;
 import com.recap.domain.post.repository.PostRepository;
+import com.recap.global.jwt.JwtUtil;
+import com.recap.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,3 +69,4 @@ public class PostService {
         return post;
     }
 }
+// dummy change

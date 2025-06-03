@@ -33,3 +33,4 @@ public class User extends BaseEntity {
     @Column(length = 50)
     private String nickname;
 }
+// dummy change
