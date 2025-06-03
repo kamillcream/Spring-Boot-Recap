@@ -34,3 +34,4 @@ public class User extends BaseEntity {
     private String nickname;
 }
 // dummy change
+// dummy change

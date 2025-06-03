@@ -1,5 +1,6 @@
 package com.recap.domain.user.controller;
 
+import com.recap.domain.post.service.PostService;
 import com.recap.domain.user.dto.request.UserRegisterRequest;
 import com.recap.domain.user.entity.User;
 import com.recap.domain.user.service.UserService;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-
+    private final PostService postService;
     // TODO : 회원 가입
     @PostMapping
     public ResponseEntity<User> postNewUser(@RequestBody UserRegisterRequest userRegisterRequest){
@@ -21,4 +22,5 @@ public class UserController {
     }
     // TODO : 회원 탈퇴
 }
+// dummy change
 // dummy change

@@ -15,3 +15,4 @@ public class BaseEntity {
     private boolean isDeleted;
 }
 // dummy change
+// dummy change

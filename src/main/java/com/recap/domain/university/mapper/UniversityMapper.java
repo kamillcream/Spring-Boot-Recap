@@ -10,3 +10,4 @@ public interface UniversityMapper {
     List<UniversityInfoResponse> findUniversityAndConvert();
 }
 // dummy change
+// dummy change
