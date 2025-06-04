@@ -6,6 +6,9 @@ import com.recap.domain.post.repository.PostRepository;
 import com.recap.global.jwt.JwtUtil;
 import com.recap.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,9 +24,12 @@ public class PostService {
         return postRepository.save(postRequest.to());
     }
 
-    public List<Post> fetchPosts(){
-        return postRepository.findAll();
+    public Page<Post> getPosts(int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return postRepository.findAll(pageable);
     }
+
+
 
     public void deletePost(long id){
         Post post = postRepository.findById(id).orElseThrow();

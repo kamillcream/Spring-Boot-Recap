@@ -6,6 +6,7 @@ import com.recap.domain.post.service.PostService;
 import com.recap.global.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,9 +28,12 @@ public class PostController {
         return ResponseEntity.ok(postService.createPost(postRequest));
     }
 
-    @GetMapping("/{univCode}")
-    public ResponseEntity<List<Post>> getPosts(@PathVariable String univCode){
-        return ResponseEntity.ok(postService.fetchPosts());
+    @GetMapping
+    public Page<Post> getPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return postService.getPosts(page, size);
     }
 
     @DeleteMapping("/{postId}")

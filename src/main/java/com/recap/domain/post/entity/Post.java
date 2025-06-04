@@ -25,9 +25,9 @@ public class Post extends BaseEntity {
 //    @JoinColumn(name = "user_id")
 //    private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "univ_id")
-    private University university;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "univ_id")
+//    private University university;
 
     @Column(nullable = false, length = 90)
     private String title;
