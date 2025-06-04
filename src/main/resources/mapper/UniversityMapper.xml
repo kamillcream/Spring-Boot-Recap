@@ -9,5 +9,4 @@
         SELECT code, name FROM university
     </select>
 
-</mapper>// dummy change
-// dummy change
+</mapper>

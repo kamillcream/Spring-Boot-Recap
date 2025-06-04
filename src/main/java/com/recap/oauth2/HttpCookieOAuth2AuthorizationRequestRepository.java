@@ -26,7 +26,7 @@ public class HttpCookieOAuth2AuthorizationRequestRepository
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
         log.info("Repository");
-        log.info("oauth2 cookie: {}", request.getCookies());
+        log.info("oauth2 cookie: {}", (Object) request.getCookies());
         log.info("pathInfo: {}", request.getPathInfo());
         log.info("requestURI: {}", request.getRequestURI());
         log.info("headers: {}", request.getHeaderNames());
@@ -79,5 +79,4 @@ public class HttpCookieOAuth2AuthorizationRequestRepository
         CookieUtil.deleteCookie(request, response, REDIRECT_URI_PARAM_COOKIE_NAME);
         CookieUtil.deleteCookie(request, response, MODE_PARAM_COOKIE_NAME);
     }
-}// dummy change
-// dummy change
+}
